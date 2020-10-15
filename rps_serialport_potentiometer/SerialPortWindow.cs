@@ -9,8 +9,6 @@ namespace rps_serialport_potentiometer
     {
         LinkLayer handler;
 
-        RingBuffer<byte> buffer = new RingBuffer<byte>(64);
-
         private Dictionary<string, int> baudrates = new Dictionary<string, int>()
         {
             {"9600", 9600 },

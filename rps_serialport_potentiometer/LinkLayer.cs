@@ -53,7 +53,7 @@ namespace rps_serialport_potentiometer
         /// <summary>
         /// Timer instance for timeout implementation
         /// </summary>
-        private System.Timers.Timer timer = new System.Timers.Timer();
+        private readonly System.Timers.Timer timer = new System.Timers.Timer();
 
         /// <summary>
         /// Link layer thread instance
@@ -177,6 +177,7 @@ namespace rps_serialport_potentiometer
                                 status = LinkStatus.IDLE;
                             }
                             break;
+                        // Should not get there
                         default:
                             break;
                     }

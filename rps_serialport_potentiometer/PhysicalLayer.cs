@@ -40,20 +40,6 @@ namespace rps_serialport_potentiometer
                 BaudRate = config.BaudRate
             };
             port.DataReceived += Port_DataReceivedHandler;
-            //phy_thread = new Thread(t_ReceivePolling);
-        }
-
-        private void Port_DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
-        {
-            int n_bytes = port.BytesToRead;
-            for (int i = 0; i < n_bytes; i++)
-            {
-                int value = port.ReadByte();
-                if (value != -1)
-                {
-                    buffer.Enqueue(Convert.ToByte(value));
-                }
-            }
         }
 
         /// <summary>
@@ -92,7 +78,6 @@ namespace rps_serialport_potentiometer
             {
                 try
                 {
-                    //phy_thread.Abort();
                     port.Close();
                     return true;
                 }
@@ -171,6 +156,24 @@ namespace rps_serialport_potentiometer
             catch
             {
                 return -1;
+            }
+        }
+
+        /// <summary>
+        /// Handler for DataReceived event of serial port, stores received bytes to ring buffer
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Port_DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
+        {
+            int n_bytes = port.BytesToRead;
+            for (int i = 0; i < n_bytes; i++)
+            {
+                int value = port.ReadByte();
+                if (value != -1)
+                {
+                    buffer.Enqueue(Convert.ToByte(value));
+                }
             }
         }
     }
