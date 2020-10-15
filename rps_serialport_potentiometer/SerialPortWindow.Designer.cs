@@ -34,12 +34,12 @@
             this.bttnDigitial = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.chkMaster = new System.Windows.Forms.CheckBox();
             this.label2 = new System.Windows.Forms.Label();
             this.trckAnalog = new System.Windows.Forms.TrackBar();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
+            this.chkMaster = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trckAnalog)).BeginInit();
             this.groupBox2.SuspendLayout();
@@ -104,16 +104,6 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Serial Port Selection";
             // 
-            // chkMaster
-            // 
-            this.chkMaster.AutoSize = true;
-            this.chkMaster.Location = new System.Drawing.Point(171, 63);
-            this.chkMaster.Name = "chkMaster";
-            this.chkMaster.Size = new System.Drawing.Size(58, 17);
-            this.chkMaster.TabIndex = 6;
-            this.chkMaster.Text = "Master";
-            this.chkMaster.UseVisualStyleBackColor = true;
-            // 
             // label2
             // 
             this.label2.AutoSize = true;
@@ -161,6 +151,16 @@
             this.label3.Size = new System.Drawing.Size(40, 13);
             this.label3.TabIndex = 6;
             this.label3.Text = "Analog";
+            // 
+            // chkMaster
+            // 
+            this.chkMaster.AutoSize = true;
+            this.chkMaster.Location = new System.Drawing.Point(171, 63);
+            this.chkMaster.Name = "chkMaster";
+            this.chkMaster.Size = new System.Drawing.Size(58, 17);
+            this.chkMaster.TabIndex = 6;
+            this.chkMaster.Text = "Master";
+            this.chkMaster.UseVisualStyleBackColor = true;
             // 
             // SerialPortWindow
             // 

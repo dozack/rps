@@ -1,46 +1,59 @@
 ﻿using System;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.IO;
 using System.IO.Ports;
-using System.Threading;
 
 namespace rps_serialport_potentiometer
 {
     /// <summary>
-    /// Physical layer driver
+    /// Serial port abstraction layer
     /// </summary>
-    public class SerialPortHandler
+    public class PhysicalLayer
     {
         /// <summary>
-        /// Serial port instance
+        /// Physical layer driver instance
         /// </summary>
-        private SerialPort _port { get; set; } = new SerialPort();
+        private readonly SerialPort port = new SerialPort();
 
-        private byte[] _buffer { get; set; } = new byte[255];
+        /// <summary>
+        /// Buffer for sotring received bytes
+        /// </summary>
+        private readonly RingBuffer<byte> buffer = new RingBuffer<byte>(256);
 
-        private int _index { get; set; } = 0;
-
-        private Thread _thread { get; set; }
+        /// <summary>
+        /// Thread for polling for received data
+        /// </summary>
+        //private readonly Thread phy_thread;
 
         /// <summary>
         /// Serial port status flag, true if port is open
         /// </summary>
-        public bool Connected { get { return _port.IsOpen; } set { return; } }
+        public bool Connected { get { return port.IsOpen; } set { return; } }
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="config">Configuration structure</param>
-        public SerialPortHandler(Configuration config)
+        public PhysicalLayer(Configuration config)
         {
-            _port = new SerialPort()
+            port = new SerialPort()
             {
                 PortName = config.PortName,
                 BaudRate = config.BaudRate
             };
-            //_port.DataReceived += DataReceived;
-            _thread = new Thread(ReceivePolling);
+            port.DataReceived += Port_DataReceivedHandler;
+            //phy_thread = new Thread(t_ReceivePolling);
+        }
+
+        private void Port_DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
+        {
+            int n_bytes = port.BytesToRead;
+            for (int i = 0; i < n_bytes; i++)
+            {
+                int value = port.ReadByte();
+                if (value != -1)
+                {
+                    buffer.Enqueue(Convert.ToByte(value));
+                }
+            }
         }
 
         /// <summary>
@@ -49,14 +62,13 @@ namespace rps_serialport_potentiometer
         /// <returns>true if success, false if port is already open, null if error</returns>
         public bool? Connect()
         {
-            if (!_port.IsOpen)
+            if (!Connected)
             {
                 try
                 {
-                    _port.Open();
-                    _port.DiscardInBuffer();
-                    _thread.Start();
-                    Connected = true;
+                    port.Open();
+                    port.DiscardOutBuffer();
+                    //phy_thread.Start();
                     return true;
                 }
                 catch
@@ -76,12 +88,12 @@ namespace rps_serialport_potentiometer
         /// <returns>true if success, false if port is already closed, null if error</returns>
         public bool? Disconnect()
         {
-            if (_port.IsOpen)
+            if (Connected)
             {
                 try
                 {
-                    _thread.Abort();
-                    _port.Close();
+                    //phy_thread.Abort();
+                    port.Close();
                     return true;
                 }
                 catch
@@ -102,12 +114,12 @@ namespace rps_serialport_potentiometer
         /// <returns>true if success, false if port is closed, null if error</returns>
         public bool? Transmit(byte data)
         {
-            if (_port.IsOpen)
+            if (Connected)
             {
                 try
                 {
                     byte[] _data = { data };
-                    _port.Write(_data, 0, 1);
+                    port.Write(_data, 0, 1);
                     return true;
                 }
                 catch
@@ -128,11 +140,11 @@ namespace rps_serialport_potentiometer
         /// <returns>true if success, false if port is closed, null if error</returns>
         public bool? Transmit(byte[] data)
         {
-            if (_port.IsOpen)
+            if (Connected)
             {
                 try
                 {
-                    _port.Write(data, 0, data.Length);
+                    port.Write(data, 0, data.Length);
                     return true;
                 }
                 catch
@@ -146,51 +158,20 @@ namespace rps_serialport_potentiometer
             }
         }
 
-        void ReceivePolling()
+        /// <summary>
+        /// Get single byte cast to in from receive buffer
+        /// </summary>
+        /// <returns>-1 if buffer empty, else popped value</returns>
+        public int Receive()
         {
-            while (true)
+            try
             {
-                if(_port.BytesToRead > 0)
-                {
-                    byte data = Convert.ToByte(_port.ReadByte());
-                    if (data == 'a')
-                    {
-                        Debug.WriteLine("Analog: " + System.Text.Encoding.Default.GetString(_buffer) + "\r\n");
-                        OnDataReceivedTrigger('a', _buffer);
-                        _buffer.Clear();
-                        _index = 0;
-                    }
-                    else if (data == 'd')
-                    {
-                        Debug.WriteLine("Digital: " + System.Text.Encoding.Default.GetString(_buffer) + "\r\n");
-                        OnDataReceivedTrigger('d', _buffer);
-                        _buffer.Clear();
-                        _index = 0;
-                    }
-                    else
-                    {
-                        _buffer[_index++] = data;
-                    }
-                }
+                return buffer.Dequeue();
+            }
+            catch
+            {
+                return -1;
             }
         }
-
-        /// <summary>
-        /// Delegate for sending received data upper layers
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="data"></param>
-        public delegate void OnDataReceived(SerialPortHandler sender, char type, byte[] data);
-
-        /// <summary>
-        /// Event for triggering delegate method
-        /// </summary>
-        public event OnDataReceived OnDataReceivedEvent;
-
-        /// <summary>
-        /// Virtual method for triggering onDataReceived event
-        /// </summary>
-        /// <param name="data"></param>
-        protected virtual void OnDataReceivedTrigger(char type, byte[] data) { OnDataReceivedEvent?.Invoke(this, type, data); }
     }
 }

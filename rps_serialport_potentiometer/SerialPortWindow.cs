@@ -7,7 +7,7 @@ namespace rps_serialport_potentiometer
 {
     public partial class SerialPortWindow : Form
     {
-        SerialPortHandler handler;
+        LinkLayer handler;
 
         RingBuffer<byte> buffer = new RingBuffer<byte>(64);
 
@@ -33,7 +33,7 @@ namespace rps_serialport_potentiometer
                     BaudRate = baudrates[cmbBaud.SelectedItem.ToString()],
                     IsMaster = chkMaster.Checked,
                 };
-                handler = new SerialPortHandler(config);
+                handler = new LinkLayer(config);
 
                 handler.Connect();
 
@@ -55,15 +55,7 @@ namespace rps_serialport_potentiometer
 
         private void SerialPortWindow_Load(object sender, EventArgs e)
         {
-            byte val1 = 0xff;
-            byte val2 = 0xab;
-            buffer.Enqueue(val1);
-            buffer.Enqueue(val2);
-            buffer.Enqueue(val1);
-            buffer.Enqueue(val2);
-            byte val = buffer.Dequeue();
-            // https://github.com/lucasrabiec/RingBuffer/blob/master/RingBuffer/RingBuffer.cs
-            /*string[] ports = SerialPort.GetPortNames();
+            string[] ports = SerialPort.GetPortNames();
             foreach (string port in ports)
             {
                 cmbPorts.Items.Add(port);
@@ -76,7 +68,7 @@ namespace rps_serialport_potentiometer
             {
                 cmbBaud.Items.Add(baud.Key);
             }
-            cmbBaud.SelectedIndex = 0;*/
+            cmbBaud.SelectedIndex = 0;
         }
 
         private void SerialPortWindow_FormClosing(object sender, FormClosingEventArgs e)
