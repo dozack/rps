@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Threading;
 
-namespace rps_serialport_potentiometer
+namespace RPS_SerialPort
 {
     /// <summary>
     /// Link layer of RPS protocol

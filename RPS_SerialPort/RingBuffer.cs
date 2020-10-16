@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace rps_serialport_potentiometer
+namespace RPS_SerialPort
 {
     /// <summary>
     /// Class <c>RingBuffer</c> for buffering data streams.

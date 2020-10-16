@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO.Ports;
 
-namespace rps_serialport_potentiometer
+namespace RPS_SerialPort
 {
     /// <summary>
     /// Serial port abstraction layer
@@ -78,6 +78,7 @@ namespace rps_serialport_potentiometer
             {
                 try
                 {
+                    port.DiscardOutBuffer();
                     port.Close();
                     return true;
                 }

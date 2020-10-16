@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Timers;
 
-namespace rps_serialport_potentiometer
+namespace RPS_SerialPort
 {
     /// <summary>
     /// Class <c>ApplicationLayer</c> for processing data content of messages

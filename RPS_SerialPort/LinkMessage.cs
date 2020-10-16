@@ -1,4 +1,4 @@
-﻿namespace rps_serialport_potentiometer
+﻿namespace RPS_SerialPort
 {
     /// <summary>
     /// Class <c>Message</c> for better data interpretation and processing

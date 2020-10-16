@@ -1,4 +1,4 @@
-﻿namespace rps_serialport_potentiometer
+﻿namespace RPS_SerialPort
 {
     /// <summary>
     /// Data structure for aplication data unit

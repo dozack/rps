@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace rps_serialport_potentiometer
+namespace RPS_SerialPort
 {
     static class Program
     {

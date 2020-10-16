@@ -1,4 +1,4 @@
-﻿namespace rps_serialport_potentiometer
+﻿namespace RPS_SerialPort
 {
     partial class SerialPortWindow
     {
@@ -110,9 +110,9 @@
             this.chkMaster.AutoSize = true;
             this.chkMaster.Location = new System.Drawing.Point(171, 63);
             this.chkMaster.Name = "chkMaster";
-            this.chkMaster.Size = new System.Drawing.Size(58, 17);
+            this.chkMaster.Size = new System.Drawing.Size(57, 17);
             this.chkMaster.TabIndex = 6;
-            this.chkMaster.Text = "Master";
+            this.chkMaster.Text = "Server";
             this.chkMaster.UseVisualStyleBackColor = true;
             // 
             // label2

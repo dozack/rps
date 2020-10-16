@@ -1,4 +1,4 @@
-﻿namespace rps_serialport_potentiometer
+﻿namespace RPS_SerialPort
 {
     /// <summary>
     /// Configuration structure for OSI layers

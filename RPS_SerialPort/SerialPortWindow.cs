@@ -4,7 +4,7 @@ using System.Windows.Forms;
 using System.IO.Ports;
 using System.Drawing;
 
-namespace rps_serialport_potentiometer
+namespace RPS_SerialPort
 {
     public partial class SerialPortWindow : Form
     {
@@ -84,6 +84,11 @@ namespace rps_serialport_potentiometer
             }
             else
             {
+                if (ProtocolHandler.IsServer)
+                {
+                    // Start service if instance is server
+                    ProtocolHandler.ServerStopService();
+                }
                 // Disconnect from bus
                 ProtocolHandler.Disconnect();
 
@@ -168,6 +173,12 @@ namespace rps_serialport_potentiometer
         /// <param name="e"></param>
         private void SerialPortWindow_FormClosing(object sender, FormClosingEventArgs e)
         {
+            if (ProtocolHandler.IsServer)
+            {
+                // Start service if instance is server
+                ProtocolHandler.ServerStopService();
+            }
+            // Disconnect from bus
             ProtocolHandler.Disconnect();
         }
 
