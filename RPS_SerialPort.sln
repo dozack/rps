@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30523.141
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "rps_serialport_potentiometer", "rps_serialport_potentiometer\rps_serialport_potentiometer.csproj", "{49B56D8E-7D63-42A1-8106-43E0262FD716}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RPS_SerialPort", "RPS_SerialPort\RPS_SerialPort.csproj", "{49B56D8E-7D63-42A1-8106-43E0262FD716}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

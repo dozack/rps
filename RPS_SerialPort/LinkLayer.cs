@@ -74,49 +74,55 @@ namespace rps_serialport_potentiometer
             phy = new PhysicalLayer(config);
             link_thread = new Thread(LinkThreadTask);
             status = LinkStatus.IDLE;
-            link_thread.Start();
             timer.Interval = 1000;
             timer.AutoReset = false;
             timer.Elapsed += TimeoutHandler;
         }
 
         /// <summary>
-        /// Destructor
-        /// </summary>
-        ~LinkLayer()
-        {
-            link_thread.Abort();
-            Disconnect();
-        }
-
-        /// <summary>
         /// Open connection and access bus
         /// </summary>
-        /// <returns>true if success, false if bus is already connected, null if error</returns>
-        public bool? Connect()
+        /// <returns>true if success, false if error</returns>
+        public bool Connect()
         {
-            return phy.Connect();
+            if (phy.Connect() == true)
+            {
+                link_thread.Start();
+                return true;
+            }
+            return false;
         }
 
         /// <summary>
         /// Close bus connection
         /// </summary>
-        /// <returns>true if success, false if bus is already disconnected, null if error</returns>
-        public bool? Disconnect()
+        /// <returns>true if success, false if error</returns>
+        public bool Disconnect()
         {
-            return phy.Disconnect();
+            link_thread.Abort();
+            if (phy.Disconnect() == true)
+            {
+                return true;
+            }
+            return false;
         }
 
         /// <summary>
         /// Build packet and transmit it on bus
         /// </summary>
         /// <param name="msg">Message to be transmitted</param>
-        /// <returns>>true if success, false if bus is not available, null if error</returns>
-        public bool? Send(LinkMessage msg)
+        /// <returns>true if success, false if error</returns>
+        public bool Send(LinkMessage msg)
         {
-            string raw = '#' + msg.Raw();
+            int len = msg.Data.Length;
+            if (len > 9) { len = 9; }
+            string raw = '#' + len.ToString() + msg.Data;
             byte[] data = Encoding.ASCII.GetBytes(raw);
-            return phy.Transmit(data);
+            if (phy.Transmit(data) == true)
+            {
+                return true;
+            }
+            return false;
         }
 
         /// <summary>
@@ -170,7 +176,7 @@ namespace rps_serialport_potentiometer
                                 // Stop timeout timer
                                 timer.Stop();
                                 // Log received data to output window
-                                Debug.WriteLine(actl_message.ToString());
+                                Debug.WriteLine("LINK-" + actl_message.ToString());
                                 // Trigger OnMessageReceived event
                                 TriggerMessageReceived(actl_message);
                                 // Return link status back to idle state so next message can be processed
@@ -195,17 +201,17 @@ namespace rps_serialport_potentiometer
             if (status == LinkStatus.IDLE)
             {
                 // Timeout occured but bus is idle (message processed) should not happen
-                Debug.WriteLine("Timeout - BUS IDLE");
+                Debug.WriteLine("LINK-IDLE_TIMEOUT");
                 return;
             }
             if (actl_message_id != tkick_message_id)
             {
                 // Timeout occured but link is already handling another message - should not happen
-                Debug.WriteLine("Timeout - LINK BUSY");
+                Debug.WriteLine("LINK-BUSY_TIMEOUT");
                 return;
             }
             // Timeout occured and link is stuck, reset (required transport layer for handling possible data loss)
-            Debug.WriteLine("Timeout - LINK STUCK");
+            Debug.WriteLine("LINK-STUCK_TIMEOUT");
             actl_message = new LinkMessage();
             rx_counter = 0;
             actl_message_id = 0;

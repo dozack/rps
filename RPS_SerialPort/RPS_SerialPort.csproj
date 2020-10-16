@@ -47,11 +47,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApplicationLayer.cs" />
+    <Compile Include="ApplicationPdu.cs" />
     <Compile Include="Configuration.cs" />
-    <Compile Include="Helpers.cs" />
     <Compile Include="LinkLayer.cs" />
-    <Compile Include="Message.cs" />
-    <Compile Include="ReturnTypes.cs" />
+    <Compile Include="LinkMessage.cs" />
     <Compile Include="RingBuffer.cs" />
     <Compile Include="PhysicalLayer.cs" />
     <Compile Include="SerialPortWindow.cs">

@@ -18,6 +18,11 @@
         /// <summary>
         /// Flag for application layer, true for transmitter, false for receiver
         /// </summary>
-        public bool IsMaster { get; set; } = false;
+        public bool IsServer { get; set; } = false;
+
+        /// <summary>
+        /// Interval in milliseconds for application layer value update
+        /// </summary>
+        public int AppUpdateInterval { get; set; } = 100;
     }
 }
