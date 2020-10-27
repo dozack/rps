@@ -63,7 +63,7 @@ namespace RPS_SerialPort
                 {
                     ProtocolHandler.OnApplicationUpdate += ProtocolHandler_OnApplicationUpdate;
                 }
-                
+
                 // Register trackbar address
                 ProtocolHandler.RegisterAddress('A');
                 // Register button address
@@ -173,13 +173,16 @@ namespace RPS_SerialPort
         /// <param name="e"></param>
         private void SerialPortWindow_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (ProtocolHandler.IsServer)
+            if (ProtocolHandler != null)
             {
-                // Start service if instance is server
-                ProtocolHandler.ServerStopService();
+                if (ProtocolHandler.IsServer)
+                {
+                    // Start service if instance is server
+                    ProtocolHandler.ServerStopService();
+                }
+                // Disconnect from bus
+                ProtocolHandler.Disconnect();
             }
-            // Disconnect from bus
-            ProtocolHandler.Disconnect();
         }
 
         /// <summary>
