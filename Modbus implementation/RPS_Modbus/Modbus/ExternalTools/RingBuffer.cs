@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace RPS_Modbus
+namespace External.Ringbuffer
 {
     /// <summary>
     /// Class <c>RingBuffer</c> for buffering data streams.
@@ -87,7 +87,7 @@ namespace RPS_Modbus
             if (Count == 0)
                 throw new InvalidOperationException("Collection is empty.");
             T value = Buffer[ReadPointer];
-            Buffer[ReadPointer] = default(T);
+            Buffer[ReadPointer] = default;
             ReadPointer = (ReadPointer + 1) % Buffer.Length;
             Count--;
             return value;
@@ -100,7 +100,7 @@ namespace RPS_Modbus
         {
             for (int i = 0; i < Buffer.Length; i++)
             {
-                Buffer[i] = default(T);
+                Buffer[i] = default;
             }
             ReadPointer = 0;
             WritePointer = 0;

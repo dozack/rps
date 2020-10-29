@@ -20,6 +20,6 @@
         /// </summary>
         public bool IsMaster { get; set; } = false;
 
-        public ModbusType ProtocolType = ModbusType.ASCII;
+        public ModbusProtocolType ProtocolType = ModbusProtocolType.ASCII;
     }
 }

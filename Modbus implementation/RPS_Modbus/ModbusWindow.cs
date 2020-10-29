@@ -1,7 +1,10 @@
-﻿using System;
+﻿using External.MicroTimer;
+using RPS_Modbus.Modbus.LinkLayer;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO.Ports;
 using System.Linq;
@@ -13,7 +16,7 @@ namespace RPS_Modbus
 {
     public partial class ModbusWindow : Form
     {
-        ModbusAsciiLink ProtocolHandler;
+        IModbusLink ProtocolHandler;
 
         private Dictionary<string, int> baudrates = new Dictionary<string, int>()
         {
@@ -58,7 +61,7 @@ namespace RPS_Modbus
                     IsMaster = chkMaster.Checked,
                 };
                 // Init new instance of application layer
-                ProtocolHandler = new ModbusAsciiLink(config);
+                ProtocolHandler = new ModbusLinkRtu(config);
 
                 // Try to connect to bus
                 if (!ProtocolHandler.Connect())
@@ -66,6 +69,9 @@ namespace RPS_Modbus
                     MessageBox.Show("Error during connection, try again.");
                     return;
                 }
+
+                //byte[] testData = new byte[] { 0x15, 0x03, 0x00, 0x6B, 0x00, 0x03};
+                //ProtocolHandler.Send(testData);
 
                 // Update controls
                 bttnConnection.Text = "Disconnect";

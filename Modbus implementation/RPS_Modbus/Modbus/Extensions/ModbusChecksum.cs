@@ -1,49 +1,9 @@
 ﻿using System;
-using System.IO;
 
 namespace RPS_Modbus
 {
-    public static class ModbusHelpers
+    public static class ModbusChecksum
     {
-        public static byte FromAscii(this byte value)
-        {
-            try
-            {
-                string ch = Convert.ToChar(value).ToString();
-                int val = Convert.ToInt32(ch, 16);
-                return Convert.ToByte(val);
-            }
-            catch
-            {
-                throw new InvalidDataException("Invalid input value.");
-            }
-        }
-
-        public static byte ToAscii(this byte value)
-        {
-            return Convert.ToByte(value.ToString("X"));
-        }
-
-        public static byte HighByte(this byte value)
-        {
-            return Convert.ToByte((value & 0xf) << 4);
-        }
-
-        public static byte LowByte(this byte value)
-        {
-            return Convert.ToByte(value & 0xf);
-        }
-
-        public static byte HighByteFromAscii(this byte value)
-        {
-            return value.FromAscii().HighByte();
-        }
-
-        public static byte LowByteFromAscii(this byte value)
-        {
-            return value.FromAscii().LowByte();
-        }
-
         private static readonly ushort[] CrcTable =
         {
             0X0000, 0XC0C1, 0XC181, 0X0140, 0XC301, 0X03C0, 0X0280, 0XC241,
@@ -80,12 +40,8 @@ namespace RPS_Modbus
             0X8201, 0X42C0, 0X4380, 0X8341, 0X4100, 0X81C1, 0X8081, 0X4040
         };
 
-        /// <summary>
-        ///     Calculate Longitudinal Redundancy Check.
-        /// </summary>
-        /// <param name="data">The data used in LRC.</param>
-        /// <returns>LRC value.</returns>
-        public static byte CalculateLrc(byte[] data)
+
+        public static byte CalculateLrc(this byte[] data, int len)
         {
             if (data == null)
             {
@@ -94,9 +50,9 @@ namespace RPS_Modbus
 
             byte lrc = 0;
 
-            foreach (byte b in data)
+            for (int i = 0; i < len; i++)
             {
-                lrc += b;
+                lrc += data[i];
             }
 
             lrc = (byte)((lrc ^ 0xFF) + 1);
@@ -109,7 +65,7 @@ namespace RPS_Modbus
         /// </summary>
         /// <param name="data">The data used in CRC.</param>
         /// <returns>CRC value.</returns>
-        public static byte[] CalculateCrc(byte[] data)
+        public static byte[] CalculateCrc(this byte[] data)
         {
             if (data == null)
             {

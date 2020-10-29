@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace RPS_Modbus
 {
-    public enum ModbusType
+    public enum ModbusProtocolType
     {
         ASCII,
         RTU
@@ -26,6 +26,6 @@ namespace RPS_Modbus
         InvalidSlaveId,
         IvalidFunction,
         ResponseTimedOut,
-        InvalidCrc
+        InvalidChecksum
     }
 }

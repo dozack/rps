@@ -1,4 +1,5 @@
-﻿using System;
+﻿using External.Ringbuffer;
+using System;
 using System.Diagnostics;
 using System.IO.Ports;
 
@@ -7,7 +8,7 @@ namespace RPS_Modbus
     /// <summary>
     /// Serial port abstraction layer
     /// </summary>
-    public class ModbusSerialStream
+    public class ModbusSerialPort
     {
         /// <summary>
         /// Physical layer driver instance
@@ -28,12 +29,14 @@ namespace RPS_Modbus
         /// Constructor
         /// </summary>
         /// <param name="config">Configuration structure</param>
-        public ModbusSerialStream(Configuration config)
+        public ModbusSerialPort(Configuration config)
         {
             Port = new SerialPort()
             {
                 PortName = config.PortName,
-                BaudRate = config.BaudRate
+                BaudRate = config.BaudRate,
+                Parity = Parity.None,
+                StopBits = StopBits.Two
             };
             Port.DataReceived += Port_DataReceivedHandler;
         }
@@ -49,7 +52,9 @@ namespace RPS_Modbus
                 try
                 {
                     Port.Open();
+                    Port.DiscardInBuffer();
                     Port.DiscardOutBuffer();
+                    Debug.WriteLine("PHY - PORT_OPENED");
                     return true;
                 }
                 catch
@@ -75,6 +80,7 @@ namespace RPS_Modbus
                 {
                     Port.DiscardOutBuffer();
                     Port.Close();
+                    Debug.WriteLine("PHY - PORT_CLOSED");
                     return true;
                 }
                 catch
@@ -101,6 +107,7 @@ namespace RPS_Modbus
                 {
                     byte[] _data = { data };
                     Port.Write(_data, 0, 1);
+                    Debug.WriteLine("PHY - TX_OK");
                     return true;
                 }
                 catch
@@ -126,6 +133,7 @@ namespace RPS_Modbus
                 try
                 {
                     Port.Write(data, 0, data.Length);
+                    Debug.WriteLine("PHY - TX_OK");
                     return true;
                 }
                 catch
@@ -168,6 +176,7 @@ namespace RPS_Modbus
                 int value = Port.ReadByte();
                 if (value != -1)
                 {
+                    //Debug.WriteLine(value.ToString("X"));
                     Buffer.Enqueue(Convert.ToByte(value));
                 }
             }
