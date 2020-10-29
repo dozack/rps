@@ -189,8 +189,8 @@ namespace RPS_Modbus
                 return;
             }
             // LRC check successful, notify upper layer
-            TriggerMessageReceived(rxData);
             Debug.WriteLine("LINK - RECV_MSG: " + BitConverter.ToString(rxData));
+            TriggerMessageReceived(rxData);
         }
 
         /// <summary>

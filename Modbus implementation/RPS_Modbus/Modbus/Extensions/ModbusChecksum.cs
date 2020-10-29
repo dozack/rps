@@ -65,14 +65,14 @@ namespace RPS_Modbus
         /// </summary>
         /// <param name="data">The data used in CRC.</param>
         /// <returns>CRC value.</returns>
-        public static byte[] CalculateCrc(this byte[] data)
+        public static int CalculateCrc(this byte[] data)
         {
             if (data == null)
             {
                 throw new ArgumentNullException(nameof(data));
             }
 
-            ushort crc = ushort.MaxValue;
+            int crc = ushort.MaxValue;
 
             foreach (byte b in data)
             {
@@ -81,7 +81,7 @@ namespace RPS_Modbus
                 crc ^= CrcTable[tableIndex];
             }
 
-            return BitConverter.GetBytes(crc);
+            return crc;
         }
     }
 }

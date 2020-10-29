@@ -37,7 +37,7 @@ namespace RPS_Modbus
         event EventHandler<MessageReceivedArgs> OnMessageReceived;
 
         /// <summary>
-        /// Event for message reception timeout notification
+        /// Event for message reception timeout notification - unused in RTU
         /// </summary>
         event EventHandler OnTimeoutOccured;
     }

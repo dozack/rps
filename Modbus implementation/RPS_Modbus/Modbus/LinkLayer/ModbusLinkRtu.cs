@@ -46,16 +46,6 @@ namespace RPS_Modbus.Modbus.LinkLayer
         private uint ActualMessageId = 0;
 
         /// <summary>
-        /// Id of message that was being processed in time of timer start - used for timeout handling 
-        /// </summary>
-        private uint TkickMessageId = 0;
-
-        /// <summary>
-        /// Timer instance for timeout implementation
-        /// </summary>
-        private readonly System.Timers.Timer TimeoutCounter = new System.Timers.Timer();
-
-        /// <summary>
         /// Link layer thread instance
         /// </summary>
         private readonly Thread LinkThread;
@@ -75,11 +65,8 @@ namespace RPS_Modbus.Modbus.LinkLayer
             PHY = new ModbusSerialPort(config);
             // Init link layer thread
             LinkThread = new Thread(ModbusAsciiLinkTask);
-            // Configure timeout timer
-            TimeoutCounter.Interval = 1000;
-            TimeoutCounter.AutoReset = false;
-            TimeoutCounter.Elapsed += TimeoutHandler;
-            ConfigureTiming(config.BaudRate / 4);
+            // Configure frame timing and set handler
+            ConfigureTiming(config.BaudRate);
             FramingTimer.OnTimeout += FramingTimeoutHandler;
         }
 
@@ -97,11 +84,14 @@ namespace RPS_Modbus.Modbus.LinkLayer
 
             if (baudrate > 19200)
             {
+                // Test timing with higher baudrates
                 FramingTimer.MicroSeconds = 1750;
             }
             else
             {
-                FramingTimer.MicroSeconds = 35000000 / baudrate;
+                // Divide baudrate due to low stability when using proper value
+                // If proper value is used, timing is too low for .NET to handle
+                FramingTimer.MicroSeconds = 35000000 / (baudrate/4);
             }
         }
 
@@ -148,9 +138,24 @@ namespace RPS_Modbus.Modbus.LinkLayer
         /// </summary>
         private void ProcessReceivedData()
         {
-            byte[] rxData = new byte[ActualFrameIndex];
-            Array.Copy(ActualFrame, 0, rxData, 0, ActualFrameIndex);
+            // Get CRC value from received frame
+            if(ActualFrameIndex < 4)
+            {
+                Debug.WriteLine("LINK - FRAME_LENGTH_ERROR");
+            }
+            int rxCrc = (ActualFrame[ActualFrameIndex - 1] << 8) | ActualFrame[ActualFrameIndex - 2];
+            // Create new buffer for received data
+            byte[] rxData = new byte[ActualFrameIndex - 2];
+            Array.Copy(ActualFrame, 0, rxData, 0, ActualFrameIndex - 2);
+            int clcCrc = rxData.CalculateCrc();
+            if(clcCrc != rxCrc)
+            {
+                Debug.WriteLine("LINK - CRC_ERROR");
+                return;
+            }
+            // CRC check successful, notify upper layer
             Debug.WriteLine("LINK - RECV_MSG: " + BitConverter.ToString(rxData));
+            TriggerMessageReceived(rxData);
             return;
         }
 
@@ -174,7 +179,6 @@ namespace RPS_Modbus.Modbus.LinkLayer
                         if (value != -1)
                         {
                             byte ReceivedByte = Convert.ToByte(value);
-                            TkickMessageId = ActualMessageId;
                             ActualFrameIndex = 0;
                             ActualFrame[ActualFrameIndex++] = ReceivedByte;
                             ActualState = ModbusRtuLinkState.RECEIVING;
@@ -203,16 +207,6 @@ namespace RPS_Modbus.Modbus.LinkLayer
         }
 
         /// <summary>
-        /// Handler for timers Elapsed event
-        /// </summary>
-        /// <param name="sender">Timer instance that triggered event</param>
-        /// <param name="e">Arguments</param>
-        private void TimeoutHandler(object sender, System.Timers.ElapsedEventArgs e)
-        {
-            return;
-        }
-
-        /// <summary>
         /// Handler for 3.5 character framing timer - should retun as fast as possible
         /// </summary>
         private void FramingTimeoutHandler(object sender)
@@ -221,7 +215,7 @@ namespace RPS_Modbus.Modbus.LinkLayer
             {
                 case ModbusRtuLinkState.INIT:
                     // Init state timeout elapsed, set state to idle
-                    Debug.WriteLine("LINK: SYNC_OK");
+                    Debug.WriteLine("LINK - SYNC_OK");
                     ActualState = ModbusRtuLinkState.IDLE;
                     break;
                 case ModbusRtuLinkState.RECEIVING:
