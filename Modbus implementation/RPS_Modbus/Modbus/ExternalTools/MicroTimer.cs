@@ -34,14 +34,10 @@ namespace External.MicroTimer
             }
         }
 
-        public MicroTimer()
-        {
-            sw.Start();
-        }
-
         // Stop the timer
         public void Stop()
         {
+            sw.Stop();
             _isRunning = false;
         }
 
@@ -49,8 +45,9 @@ namespace External.MicroTimer
         public async void Start()
         {
             // Start if delegate set
-            if (OnTimeout != null)
+            if (OnTimeout != null && !_isRunning)
             {
+                sw.Start();
                 _isRunning = true;
                 // CPU bound task, hence Task.Run
                 await Task.Run(() => Timing());
@@ -61,21 +58,19 @@ namespace External.MicroTimer
         private void Timing()
         {
             // Calculates the timing difference
-            long interval;
+            long interval = sw.ElapsedTicks + microSecondsInCPUTicks; ;
             // Loop until stopped
-            while (_isRunning)
+            while (interval - sw.ElapsedTicks > 0)
             {
-                // Get interval to wait
-                interval = sw.ElapsedTicks + microSecondsInCPUTicks;
-                // Loop until interval has passed
-                while (interval - sw.ElapsedTicks > 0)
+                // Chance for kernel to yield the tight CPU loop
+                Thread.Sleep(0);
+                if (!_isRunning)
                 {
-                    // Chance for kernel to yield the tight CPU loop
-                    Thread.Sleep(0);
+                    return;
                 }
-                // Run the external code
-                TriggerOnTimeout();
             }
+            // Run the external code
+            TriggerOnTimeout();
         }
 
         // The delegate used to call an external function

@@ -79,7 +79,7 @@ namespace RPS_Modbus.Modbus.LinkLayer
             TimeoutCounter.Interval = 1000;
             TimeoutCounter.AutoReset = false;
             TimeoutCounter.Elapsed += TimeoutHandler;
-            ConfigureTiming(config.BaudRate);
+            ConfigureTiming(config.BaudRate / 4);
             FramingTimer.OnTimeout += FramingTimeoutHandler;
         }
 
@@ -103,7 +103,6 @@ namespace RPS_Modbus.Modbus.LinkLayer
             {
                 FramingTimer.MicroSeconds = 35000000 / baudrate;
             }
-            FramingTimer.MicroSeconds = 100000;
         }
 
         /// <summary>
@@ -161,7 +160,8 @@ namespace RPS_Modbus.Modbus.LinkLayer
         private void ModbusAsciiLinkTask()
         {
             while (true)
-            {
+            { 
+                Thread.Sleep(0);
                 int value;
                 switch (ActualState)
                 {
@@ -173,7 +173,6 @@ namespace RPS_Modbus.Modbus.LinkLayer
                         value = PHY.Receive();
                         if (value != -1)
                         {
-                            FramingTimer.Stop();
                             byte ReceivedByte = Convert.ToByte(value);
                             TkickMessageId = ActualMessageId;
                             ActualFrameIndex = 0;
@@ -184,14 +183,14 @@ namespace RPS_Modbus.Modbus.LinkLayer
                         break;
                     case ModbusRtuLinkState.RECEIVING:
                         // Receive all message bytes until framing timeout
-                        FramingTimer.Stop();
                         value = PHY.Receive();
                         if (value != -1)
                         {
+                            FramingTimer.Stop();
                             byte ReceivedByte = Convert.ToByte(value);
                             ActualFrame[ActualFrameIndex++] = ReceivedByte;
+                            FramingTimer.Start();
                         }
-                        FramingTimer.Start();
                         break;
                     case ModbusRtuLinkState.PROCESSING:
                         // Process message
@@ -218,26 +217,22 @@ namespace RPS_Modbus.Modbus.LinkLayer
         /// </summary>
         private void FramingTimeoutHandler(object sender)
         {
-            if (FramingTimer.IsRunning)
+            switch (ActualState)
             {
-                switch (ActualState)
-                {
-                    case ModbusRtuLinkState.INIT:
-                        // Init state timeout elapsed, set state to idle
-                        ActualState = ModbusRtuLinkState.IDLE;
-                        Debug.WriteLine("LINK: INIT -> IDLE");
-                        break;
-                    case ModbusRtuLinkState.RECEIVING:
-                        // Message reception timed out, process received data
-                        ActualState = ModbusRtuLinkState.PROCESSING;
-                        Debug.WriteLine("LINK: RECEIVING -> PROCESSING");
-                        break;
-                    case ModbusRtuLinkState.IDLE:
-                    case ModbusRtuLinkState.PROCESSING:
-                        // Link is idle or processing message, wait
-                        Debug.WriteLine("LINK: IDLE/PROCESSING -> WAIT...");
-                        break;
-                }
+                case ModbusRtuLinkState.INIT:
+                    // Init state timeout elapsed, set state to idle
+                    Debug.WriteLine("LINK: SYNC_OK");
+                    ActualState = ModbusRtuLinkState.IDLE;
+                    break;
+                case ModbusRtuLinkState.RECEIVING:
+                    // Message reception timed out, process received data
+                    ActualState = ModbusRtuLinkState.PROCESSING;
+                    break;
+                case ModbusRtuLinkState.IDLE:
+                case ModbusRtuLinkState.PROCESSING:
+                    // Link is idle or processing message, wait
+                    //Debug.WriteLine("LINK: IDLE/PROCESSING -> WAIT...");
+                    break;
             }
             return;
         }
