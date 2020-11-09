@@ -3,7 +3,7 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 
-namespace RPS_Modbus.Modbus.LinkLayer
+namespace RPS_Modbus
 {
     public class ModbusLinkRtu : IModbusLink
     {
@@ -59,7 +59,7 @@ namespace RPS_Modbus.Modbus.LinkLayer
         /// Constructor
         /// </summary>
         /// <param name="config">Configuration structure</param>
-        public ModbusLinkRtu(Configuration config)
+        public ModbusLinkRtu(ModbusConfiguration config)
         {
             // Init serial port driver
             PHY = new ModbusSerialPort(config);
@@ -82,17 +82,18 @@ namespace RPS_Modbus.Modbus.LinkLayer
             // intercharacter must be 1.5T or 1.5 times longer than a normal character and thus
             // 1.5T = 1.04167ms * 1.5 = 1.5625ms. A frame delay is 3.5T.
 
-            if (baudrate > 19200)
-            {
-                // Test timing with higher baudrates
-                FramingTimer.MicroSeconds = 1750;
-            }
-            else
-            {
-                // Divide baudrate due to low stability when using proper value
-                // If proper value is used, timing is too low for .NET to handle
-                FramingTimer.MicroSeconds = 35000000 / (baudrate/4);
-            }
+            // CORRECT IMPLEMENTATION
+            //if (baudrate > 19200)
+            //{
+            //      FramingTimer.MicroSeconds = 1750;
+            //}
+            //else
+            //{
+            //      FramingTimer.MicroSeconds = 35000000 / baudrate;
+            //}
+
+            // CUSTOM IMPLEMENTATION FOR HIGH STABILITY
+            FramingTimer.MicroSeconds = 20000;
         }
 
         /// <summary>
@@ -139,7 +140,7 @@ namespace RPS_Modbus.Modbus.LinkLayer
         private void ProcessReceivedData()
         {
             // Get CRC value from received frame
-            if(ActualFrameIndex < 4)
+            if (ActualFrameIndex < 4)
             {
                 Debug.WriteLine("LINK - FRAME_LENGTH_ERROR");
             }
@@ -148,7 +149,7 @@ namespace RPS_Modbus.Modbus.LinkLayer
             byte[] rxData = new byte[ActualFrameIndex - 2];
             Array.Copy(ActualFrame, 0, rxData, 0, ActualFrameIndex - 2);
             int clcCrc = rxData.CalculateCrc();
-            if(clcCrc != rxCrc)
+            if (clcCrc != rxCrc)
             {
                 Debug.WriteLine("LINK - CRC_ERROR");
                 return;
@@ -165,7 +166,7 @@ namespace RPS_Modbus.Modbus.LinkLayer
         private void ModbusAsciiLinkTask()
         {
             while (true)
-            { 
+            {
                 Thread.Sleep(0);
                 int value;
                 switch (ActualState)

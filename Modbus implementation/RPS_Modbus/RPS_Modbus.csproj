@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Modbus\ModbusMaster.cs" />
     <Compile Include="Modbus\DataStructures\ModbusConfiguration.cs" />
     <Compile Include="Modbus\Extensions\ModbusConversion.cs" />
     <Compile Include="Modbus\ExternalTools\MicroTimer.cs" />

@@ -29,7 +29,7 @@ namespace RPS_Modbus
         /// Constructor
         /// </summary>
         /// <param name="config">Configuration structure</param>
-        public ModbusSerialPort(Configuration config)
+        public ModbusSerialPort(ModbusConfiguration config)
         {
             Port = new SerialPort()
             {
@@ -163,6 +163,13 @@ namespace RPS_Modbus
             }
         }
 
+        public void Flush()
+        {
+            Buffer.Clear();
+        }
+
+        private Stopwatch sw = new Stopwatch();
+
         /// <summary>
         /// Handler for DataReceived event of serial port, stores received bytes to ring buffer
         /// </summary>
@@ -170,16 +177,30 @@ namespace RPS_Modbus
         /// <param name="e"></param>
         private void Port_DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
         {
+            sw.Start();
             int n_bytes = Port.BytesToRead;
+#if true
             for (int i = 0; i < n_bytes; i++)
             {
                 int value = Port.ReadByte();
                 if (value != -1)
                 {
-                    //Debug.WriteLine(value.ToString("X"));
                     Buffer.Enqueue(Convert.ToByte(value));
                 }
             }
+#endif
+#if false
+            byte[] buffer = new byte[n_bytes];
+            Port.Read(buffer, 0, n_bytes);
+            foreach(byte b in buffer)
+            {
+                Buffer.Enqueue(b);
+            }
+            TimeSpan ms = sw.Elapsed;
+            Debug.WriteLine(n_bytes.ToString());
+            Debug.WriteLine(ms);
+#endif
+            sw.Reset();
         }
     }
 }

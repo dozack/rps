@@ -1,9 +1,11 @@
-﻿namespace RPS_Modbus
+﻿using System.Dynamic;
+
+namespace RPS_Modbus
 {
     /// <summary>
     /// Configuration structure for OSI layers
     /// </summary>
-    public class Configuration
+    public class ModbusConfiguration
     {
         /// <summary>
         /// Serial port name
@@ -14,11 +16,8 @@
         /// Serial port baud rate
         /// </summary>
         public int BaudRate { get; set; } = 0;
-
-        /// <summary>
-        /// Flag for application layer, true for transmitter, false for receiver
-        /// </summary>
-        public bool IsMaster { get; set; } = false;
+        
+        public bool IsServer { get; set; }
 
         public ModbusProtocolType ProtocolType = ModbusProtocolType.ASCII;
     }

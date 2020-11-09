@@ -1,5 +1,4 @@
 ﻿using External.MicroTimer;
-using RPS_Modbus.Modbus.LinkLayer;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -54,11 +53,10 @@ namespace RPS_Modbus
             if (ProtocolHandler == null || !ProtocolHandler.Connected)
             {
                 // ProtocolHandler not initalized or disconnected
-                Configuration config = new Configuration()
+                ModbusConfiguration config = new ModbusConfiguration()
                 {
                     PortName = cmbPorts.SelectedItem.ToString(),
                     BaudRate = baudrates[cmbBaud.SelectedItem.ToString()],
-                    IsMaster = chkMaster.Checked,
                 };
                 // Init new instance of application layer
                 ProtocolHandler = new ModbusLinkRtu(config);

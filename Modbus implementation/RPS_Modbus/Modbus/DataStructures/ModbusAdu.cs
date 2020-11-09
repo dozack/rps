@@ -13,10 +13,6 @@ namespace RPS_Modbus
 
         public byte[] Data;
 
-        public byte DataLength;
-
-        public byte Checksum;
-
         public override string ToString()
         {
             return "ADDR:" + Address.ToString("X") + "-CMD:" + Function.ToString("X") + "-DATA:" + BitConverter.ToString(Data);

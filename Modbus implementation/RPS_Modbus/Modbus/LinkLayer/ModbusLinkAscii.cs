@@ -67,7 +67,7 @@ namespace RPS_Modbus
         /// Constructor
         /// </summary>
         /// <param name="config">Configuration structure</param>
-        public ModbusLinkAscii(Configuration config)
+        public ModbusLinkAscii(ModbusConfiguration config)
         {
             // Init serial port driver
             PHY = new ModbusSerialPort(config);
