@@ -88,6 +88,7 @@ namespace RPS_Modbus
             if (PHY.Connect())
             {
                 // Start the link thread if connection was successful
+                ActualState = ModbusAsciiLinkState.IDLE;
                 LinkThread.Start();
                 return true;
             }
@@ -100,8 +101,9 @@ namespace RPS_Modbus
         /// <returns>true if success, false if error</returns>
         public bool Disconnect()
         {
-            // Stop link thread
+            // Stop link thread            
             LinkThread.Abort();
+            ActualState = ModbusAsciiLinkState.IDLE;
             return PHY.Disconnect();
         }
 
@@ -261,26 +263,29 @@ namespace RPS_Modbus
         /// <param name="e">Arguments</param>
         private void TimeoutHandler(object sender, System.Timers.ElapsedEventArgs e)
         {
-            if (ActualState == ModbusAsciiLinkState.IDLE)
+            if (Connected)
             {
-                // Timeout occured but bus is idle (message processed) should not happen
-                Debug.WriteLine("LINK - IDLE_TIMEOUT");
+                if (ActualState == ModbusAsciiLinkState.IDLE)
+                {
+                    // Timeout occured but bus is idle (message processed) should not happen
+                    Debug.WriteLine("LINK - IDLE_TIMEOUT");
+                    return;
+                }
+                if (ActualMessageId != TkickMessageId)
+                {
+                    // Timeout occured but link is already handling another message - should not happen
+                    Debug.WriteLine("LINK - BUSY_TIMEOUT");
+                    return;
+                }
+                // Timeout occured and link is stuck, reset (required transport layer for handling possible data loss)
+                Debug.WriteLine("LINK - STUCK_TIMEOUT");
+                ActualFrameIndex = 0;
+                ActualMessageId = 0;
+                TkickMessageId = 0;
+                TriggerTimeoutOccured();
+                ActualState = ModbusAsciiLinkState.IDLE;
                 return;
             }
-            if (ActualMessageId != TkickMessageId)
-            {
-                // Timeout occured but link is already handling another message - should not happen
-                Debug.WriteLine("LINK - BUSY_TIMEOUT");
-                return;
-            }
-            // Timeout occured and link is stuck, reset (required transport layer for handling possible data loss)
-            Debug.WriteLine("LINK - STUCK_TIMEOUT");
-            ActualFrameIndex = 0;
-            ActualMessageId = 0;
-            TkickMessageId = 0;
-            TriggerTimeoutOccured();
-            ActualState = ModbusAsciiLinkState.IDLE;
-            return;
         }
 
         #region TIMEOUT_NOTIFICATION_EVENT
