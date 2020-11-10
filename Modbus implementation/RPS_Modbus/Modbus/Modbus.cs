@@ -66,6 +66,11 @@ namespace RPS_Modbus
             return Send(ModbusCommand.READ_COILS, cmdData);
         }
 
+        public bool ReadHoldingRegister(ushort address)
+        {
+            return false;
+        }
+
         private ushort lastCmdAddr = 0x0000;
 
         private void ProcessMessageServer(byte[] message)

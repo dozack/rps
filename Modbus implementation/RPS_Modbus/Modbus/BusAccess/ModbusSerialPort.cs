@@ -35,6 +35,7 @@ namespace RPS_Modbus
             {
                 PortName = config.PortName,
                 BaudRate = config.BaudRate,
+                DataBits = 8,
                 Parity = Parity.None,
                 StopBits = StopBits.Two,
                 WriteTimeout = 100,
@@ -135,11 +136,6 @@ namespace RPS_Modbus
             {
                 return -1;
             }
-        }
-
-        public void Flush()
-        {
-            Buffer.Clear();
         }
 
         ////////// private Stopwatch sw = new Stopwatch();

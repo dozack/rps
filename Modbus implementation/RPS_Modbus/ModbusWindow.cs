@@ -54,7 +54,6 @@ namespace RPS_Modbus
                     ClientAddress = 0x1,
                     IsServer = chkMaster.Checked,
                     ProtocolType = ModbusProtocolType.ASCII,
-                    Timeout = 100
                 };
                 // Init new instance of application layer
                 ProtocolHandler = new Modbus(config);
@@ -105,6 +104,7 @@ namespace RPS_Modbus
         private void UpdateTimer_Tick(object sender, EventArgs e)
         {
             ProtocolHandler.ReadCoil(0x0000);
+            ProtocolHandler.ReadHoldingRegister(0x0000);
             trck_Holding.Value = ProtocolHandler.HoldingRegisters.Read(0x0000);
             bool coilStatus = Convert.ToBoolean(ProtocolHandler.Coils.Read(0x0000));
             bttnCoil.BackColor = coilStatus == true ? Color.Green : Color.White;

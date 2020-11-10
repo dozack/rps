@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Drawing;
 using System.Threading;
 
 namespace RPS_Modbus
@@ -267,12 +268,14 @@ namespace RPS_Modbus
                 if (ActualState == ModbusAsciiLinkState.IDLE)
                 {
                     // Timeout occured but bus is idle (message processed) should not happen
+                    TimeoutCounter.Stop();
                     Debug.WriteLine("LINK - IDLE_TIMEOUT");
                     return;
                 }
                 if (ActualMessageId != TkickMessageId)
                 {
                     // Timeout occured but link is already handling another message - should not happen
+                    TimeoutCounter.Stop();
                     Debug.WriteLine("LINK - BUSY_TIMEOUT");
                     return;
                 }

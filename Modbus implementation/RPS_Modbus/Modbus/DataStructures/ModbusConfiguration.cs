@@ -16,8 +16,6 @@ namespace RPS_Modbus
         /// Serial port baud rate
         /// </summary>
         public int BaudRate { get; set; } = 0;
-
-        public int Timeout { get; set; }
         
         public bool IsServer { get; set; }
 

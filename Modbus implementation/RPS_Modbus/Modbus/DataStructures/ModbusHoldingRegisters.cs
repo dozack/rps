@@ -6,6 +6,7 @@ namespace RPS_Modbus
 {
     public class ModbusHoldingRegisters
     {
+        // 0x0000 - 0xffff
         private Dictionary<ushort, ushort> Storage = new Dictionary<ushort, ushort>();
 
         public void Write(ushort address, ushort value)
