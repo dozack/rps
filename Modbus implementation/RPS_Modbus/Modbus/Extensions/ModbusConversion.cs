@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 
 namespace RPS_Modbus
 {
@@ -14,7 +13,8 @@ namespace RPS_Modbus
             }
             catch
             {
-                throw new InvalidDataException("Invalid input value.");
+                return 0;
+                //throw new InvalidDataException("Invalid input value.");
             }
         }
 

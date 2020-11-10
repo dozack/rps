@@ -35,7 +35,15 @@
             this.cmbPorts = new System.Windows.Forms.ComboBox();
             this.bttnConnection = new System.Windows.Forms.Button();
             this.cmbBaud = new System.Windows.Forms.ComboBox();
+            this.trck_Holding = new System.Windows.Forms.TrackBar();
+            this.lblHolding = new System.Windows.Forms.Label();
+            this.grpData = new System.Windows.Forms.GroupBox();
+            this.bttnCoil = new System.Windows.Forms.Button();
+            this.label3 = new System.Windows.Forms.Label();
+            this.lblHoldingVal = new System.Windows.Forms.Label();
             this.grpConnection.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.trck_Holding)).BeginInit();
+            this.grpData.SuspendLayout();
             this.SuspendLayout();
             // 
             // grpConnection
@@ -107,17 +115,81 @@
             this.cmbBaud.Size = new System.Drawing.Size(121, 21);
             this.cmbBaud.TabIndex = 1;
             // 
+            // trck_Holding
+            // 
+            this.trck_Holding.Location = new System.Drawing.Point(115, 19);
+            this.trck_Holding.Maximum = 65535;
+            this.trck_Holding.Name = "trck_Holding";
+            this.trck_Holding.Size = new System.Drawing.Size(218, 45);
+            this.trck_Holding.TabIndex = 7;
+            this.trck_Holding.MouseUp += new System.Windows.Forms.MouseEventHandler(this.trck_Holding_MouseUp);
+            // 
+            // lblHolding
+            // 
+            this.lblHolding.AutoSize = true;
+            this.lblHolding.Location = new System.Drawing.Point(6, 32);
+            this.lblHolding.Name = "lblHolding";
+            this.lblHolding.Size = new System.Drawing.Size(103, 13);
+            this.lblHolding.TabIndex = 8;
+            this.lblHolding.Text = "Holding register 0x0:";
+            // 
+            // grpData
+            // 
+            this.grpData.Controls.Add(this.lblHoldingVal);
+            this.grpData.Controls.Add(this.bttnCoil);
+            this.grpData.Controls.Add(this.label3);
+            this.grpData.Controls.Add(this.trck_Holding);
+            this.grpData.Controls.Add(this.lblHolding);
+            this.grpData.Enabled = false;
+            this.grpData.Location = new System.Drawing.Point(270, 17);
+            this.grpData.Name = "grpData";
+            this.grpData.Size = new System.Drawing.Size(436, 100);
+            this.grpData.TabIndex = 9;
+            this.grpData.TabStop = false;
+            this.grpData.Text = "Playground";
+            // 
+            // bttnCoil
+            // 
+            this.bttnCoil.BackColor = System.Drawing.Color.White;
+            this.bttnCoil.Location = new System.Drawing.Point(129, 59);
+            this.bttnCoil.Name = "bttnCoil";
+            this.bttnCoil.Size = new System.Drawing.Size(68, 23);
+            this.bttnCoil.TabIndex = 10;
+            this.bttnCoil.UseVisualStyleBackColor = false;
+            this.bttnCoil.Click += new System.EventHandler(this.bttnCoil_Click);
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(6, 64);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(47, 13);
+            this.label3.TabIndex = 9;
+            this.label3.Text = "Coil 0x0:";
+            // 
+            // lblHoldingVal
+            // 
+            this.lblHoldingVal.AutoSize = true;
+            this.lblHoldingVal.Location = new System.Drawing.Point(339, 32);
+            this.lblHoldingVal.Name = "lblHoldingVal";
+            this.lblHoldingVal.Size = new System.Drawing.Size(0, 13);
+            this.lblHoldingVal.TabIndex = 11;
+            // 
             // ModbusWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(719, 128);
+            this.Controls.Add(this.grpData);
             this.Controls.Add(this.grpConnection);
             this.Name = "ModbusWindow";
             this.Text = "Modbus Master ";
             this.Load += new System.EventHandler(this.ModbusWindow_Load);
             this.grpConnection.ResumeLayout(false);
             this.grpConnection.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.trck_Holding)).EndInit();
+            this.grpData.ResumeLayout(false);
+            this.grpData.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -131,6 +203,12 @@
         private System.Windows.Forms.ComboBox cmbPorts;
         private System.Windows.Forms.Button bttnConnection;
         private System.Windows.Forms.ComboBox cmbBaud;
+        private System.Windows.Forms.TrackBar trck_Holding;
+        private System.Windows.Forms.Label lblHolding;
+        private System.Windows.Forms.GroupBox grpData;
+        private System.Windows.Forms.Button bttnCoil;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label lblHoldingVal;
     }
 }
 

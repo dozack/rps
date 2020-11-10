@@ -12,20 +12,40 @@ namespace RPS_Modbus
         RTU
     }
 
+    public enum ModbusCommand : byte
+    {
+        READ_COILS = 0x1,
+        READ_DISCRETE_INPUTS = 0x2,
+        READ_HOLDING_REGISTERS = 0x3,
+        READ_INPUT_REGISTERS = 0x4,
+        WRITE_SINGLE_COIL = 0x5,
+        WRITE_SINGLE_HOLDING_REGISTER = 0x6,
+    }
+
+    public enum ModbusErrorResponse : byte
+    {
+        READ_COILS = 0x81,
+        READ_DISCRETE_INPUTS = 0x82,
+        READ_HOLDING_REGISTERS = 0x83,
+        READ_INPUT_REGISTERS = 0x84,
+        WRITE_SINGLE_COIL = 0x85,
+        WRITE_SINGLE_HOLDING_REGISTER = 0x83,
+    }
+
     public enum ModbusErrorCode : byte
     {
-        IllegalFunction = 0x1,
-        IllegalDataAddress = 0x2,
-        IllegalDataValue = 0x3,
-        SlaveDeviceFailure = 0x4
+        ILLEGAL_FUNCTION = 0x1,
+        ILLEGAL_DATA_ADDRESS = 0x2,
+        ILLEGAL_DATA_VALUE = 0x3,
+        CLIENT_DEVICE_FAILURE = 0x4
     }
 
     public enum ModbusStatus
     {
-        Success,
-        InvalidSlaveId,
-        IvalidFunction,
-        ResponseTimedOut,
-        InvalidChecksum
+        SUCCESS,
+        INVALID_CLIENT_ID,
+        INVALID_FUNCTION,
+        RESPONSE_TIMED_OUT,
+        INVALID_CHECKSUM
     }
 }

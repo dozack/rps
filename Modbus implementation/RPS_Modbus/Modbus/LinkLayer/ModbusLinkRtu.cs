@@ -64,7 +64,7 @@ namespace RPS_Modbus
             // Init serial port driver
             PHY = new ModbusSerialPort(config);
             // Init link layer thread
-            LinkThread = new Thread(ModbusAsciiLinkTask);
+            LinkThread = new Thread(ModbusRtuLinkTask);
             // Configure frame timing and set handler
             ConfigureTiming(config.BaudRate);
             FramingTimer.OnTimeout += FramingTimeoutHandler;
@@ -93,7 +93,7 @@ namespace RPS_Modbus
             //}
 
             // CUSTOM IMPLEMENTATION FOR HIGH STABILITY
-            FramingTimer.MicroSeconds = 20000;
+            FramingTimer.MicroSeconds = 10000;
         }
 
         /// <summary>
@@ -131,7 +131,13 @@ namespace RPS_Modbus
         /// <returns>true if success, false if error</returns>
         public bool Send(byte[] msg)
         {
-            return false;
+            int txCrc = msg.CalculateCrc();
+            byte[] txData = new byte[msg.Length + 2];
+            Array.Copy(msg, 0, txData, 0, msg.Length);
+            txData[txData.Length - 1] = Convert.ToByte((txCrc & 0xff00) >> 8);
+            txData[txData.Length - 2] = Convert.ToByte(txCrc & 0x00ff);
+            Debug.WriteLine("LINK - TX_MSG: " + BitConverter.ToString(txData));
+            return PHY.Transmit(txData);
         }
 
         /// <summary>
@@ -151,11 +157,12 @@ namespace RPS_Modbus
             int clcCrc = rxData.CalculateCrc();
             if (clcCrc != rxCrc)
             {
+                ActualFrameIndex = 0;
                 Debug.WriteLine("LINK - CRC_ERROR");
                 return;
             }
             // CRC check successful, notify upper layer
-            Debug.WriteLine("LINK - RECV_MSG: " + BitConverter.ToString(rxData));
+            Debug.WriteLine("LINK - RX_MSG: " + BitConverter.ToString(rxData));
             TriggerMessageReceived(rxData);
             return;
         }
@@ -163,7 +170,7 @@ namespace RPS_Modbus
         /// <summary>
         /// Task for processing received data running in thread
         /// </summary>
-        private void ModbusAsciiLinkTask()
+        private void ModbusRtuLinkTask()
         {
             while (true)
             {
@@ -226,7 +233,6 @@ namespace RPS_Modbus
                 case ModbusRtuLinkState.IDLE:
                 case ModbusRtuLinkState.PROCESSING:
                     // Link is idle or processing message, wait
-                    //Debug.WriteLine("LINK: IDLE/PROCESSING -> WAIT...");
                     break;
             }
             return;

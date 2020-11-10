@@ -1,28 +1,22 @@
-﻿using External.MicroTimer;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO.Ports;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace RPS_Modbus
 {
     public partial class ModbusWindow : Form
     {
-        IModbusLink ProtocolHandler;
+        private Modbus ProtocolHandler;
+
+        private Timer UpdateTimer = new Timer();
 
         private Dictionary<string, int> baudrates = new Dictionary<string, int>()
         {
             {"9600", 9600 },
             {"19200", 57600},
             {"115200", 115200},
-            {"921600", 921600 }
         };
 
         public ModbusWindow()
@@ -57,9 +51,16 @@ namespace RPS_Modbus
                 {
                     PortName = cmbPorts.SelectedItem.ToString(),
                     BaudRate = baudrates[cmbBaud.SelectedItem.ToString()],
+                    ClientAddress = 0x1,
+                    IsServer = chkMaster.Checked,
+                    ProtocolType = ModbusProtocolType.ASCII,
+                    Timeout = 100
                 };
                 // Init new instance of application layer
-                ProtocolHandler = new ModbusLinkRtu(config);
+                ProtocolHandler = new Modbus(config);
+
+                ProtocolHandler.Coils.Write(0x0000, false);
+                ProtocolHandler.HoldingRegisters.Write(0x0000, 0x0000);
 
                 // Try to connect to bus
                 if (!ProtocolHandler.Connect())
@@ -68,26 +69,66 @@ namespace RPS_Modbus
                     return;
                 }
 
-                //byte[] testData = new byte[] { 0x15, 0x03, 0x00, 0x6B, 0x00, 0x03};
-                //ProtocolHandler.Send(testData);
+                if (ProtocolHandler.IsServer)
+                {
+                    UpdateTimer.Interval = 200;
+                    UpdateTimer.Tick += UpdateTimer_Tick;
+                    UpdateTimer.Enabled = true;
+                }
 
                 // Update controls
                 bttnConnection.Text = "Disconnect";
                 cmbPorts.Enabled = false;
                 cmbBaud.Enabled = false;
                 chkMaster.Enabled = false;
+                grpData.Enabled = true;
             }
             else
             {
                 // Disconnect from bus
                 ProtocolHandler.Disconnect();
 
+                if (ProtocolHandler.IsServer)
+                {
+                    UpdateTimer.Enabled = false;
+                }
+
                 // Update controls
                 bttnConnection.Text = "Connect";
                 cmbPorts.Enabled = true;
                 cmbBaud.Enabled = true;
                 chkMaster.Enabled = true;
+                grpData.Enabled = false;
             }
+        }
+
+        private void UpdateTimer_Tick(object sender, EventArgs e)
+        {
+            ProtocolHandler.ReadCoil(0x0000);
+            trck_Holding.Value = ProtocolHandler.HoldingRegisters.Read(0x0000);
+            bool coilStatus = Convert.ToBoolean(ProtocolHandler.Coils.Read(0x0000));
+            bttnCoil.BackColor = coilStatus == true ? Color.Green : Color.White;
+        }
+
+        private void trck_Holding_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (ProtocolHandler.IsServer)
+            {
+                return;
+            }
+            ProtocolHandler.HoldingRegisters.Write(0x0000, Convert.ToUInt16(trck_Holding.Value));
+            lblHoldingVal.Text = trck_Holding.Value.ToString();
+        }
+
+        private void bttnCoil_Click(object sender, EventArgs e)
+        {
+            if (ProtocolHandler.IsServer)
+            {
+                return;
+            }
+            bool coilStatus = !Convert.ToBoolean(ProtocolHandler.Coils.Read(0x0000));
+            ProtocolHandler.Coils.Write(0x0000, coilStatus);
+            bttnCoil.BackColor = coilStatus == true ? Color.Green : Color.White;
         }
     }
 }

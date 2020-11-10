@@ -46,7 +46,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Modbus\ModbusMaster.cs" />
+    <Compile Include="Modbus\DataStructures\ModbusCoils.cs" />
+    <Compile Include="Modbus\DataStructures\ModbusHoldingRegisters.cs" />
+    <Compile Include="Modbus\Modbus.cs" />
     <Compile Include="Modbus\DataStructures\ModbusConfiguration.cs" />
     <Compile Include="Modbus\Extensions\ModbusConversion.cs" />
     <Compile Include="Modbus\ExternalTools\MicroTimer.cs" />
@@ -59,7 +61,6 @@
       <DependentUpon>ModbusWindow.cs</DependentUpon>
     </Compile>
     <Compile Include="Modbus\LinkLayer\ModbusLinkAscii.cs" />
-    <Compile Include="Modbus\DataStructures\ModbusAdu.cs" />
     <Compile Include="Modbus\DataStructures\ModbusDefines.cs" />
     <Compile Include="Modbus\BusAccess\ModbusSerialPort.cs" />
     <Compile Include="Modbus\LinkLayer\ModbusLinkRtu.cs" />

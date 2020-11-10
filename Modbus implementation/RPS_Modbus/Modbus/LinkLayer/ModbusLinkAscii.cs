@@ -152,7 +152,7 @@ namespace RPS_Modbus
             txData[txData.Length - 2] = Convert.ToByte('\r');
             txData[txData.Length - 1] = Convert.ToByte('\n');
             // Send finished data frame
-            Debug.WriteLine("LINK - SEND: " + BitConverter.ToString(txData));
+            Debug.WriteLine("LINK - TX_MSG: " + BitConverter.ToString(msg));
             return PHY.Transmit(txData);
         }
 
@@ -191,7 +191,7 @@ namespace RPS_Modbus
                 return;
             }
             // LRC check successful, notify upper layer
-            Debug.WriteLine("LINK - RECV_MSG: " + BitConverter.ToString(rxData));
+            Debug.WriteLine("LINK - RX_MSG: " + BitConverter.ToString(rxData));
             TriggerMessageReceived(rxData);
         }
 
@@ -203,6 +203,7 @@ namespace RPS_Modbus
             while (true)
             {
                 // Pop byte from receive ring buffer
+                Thread.Sleep(0);
                 int value = PHY.Receive();
                 if (value != -1)
                 {
@@ -233,8 +234,6 @@ namespace RPS_Modbus
                                 ActualState = ModbusAsciiLinkState.IDLE;
                                 // Increment message id
                                 ActualMessageId++;
-                                // TODO: Check CRC of received message and build ADU for higher layer
-                                Debug.WriteLine("LINK - RECV: " + ActualMessageId.ToString());
                                 break;
                             }
                             if (ReceivedByte == '\r')

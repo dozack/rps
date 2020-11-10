@@ -13,7 +13,7 @@ namespace RPS_Modbus
         /// <summary>
         /// Physical layer driver instance
         /// </summary>
-        private readonly SerialPort Port = new SerialPort();
+        private readonly SerialPort Port;
 
         /// <summary>
         /// Buffer for storing received bytes
@@ -23,7 +23,7 @@ namespace RPS_Modbus
         /// <summary>
         /// Serial port status flag, true if port is open
         /// </summary>
-        public bool Connected { get { return Port.IsOpen; } set { return; } }
+        public bool Connected { get { return Port != null && Port.IsOpen; } set { return; } }
 
         /// <summary>
         /// Constructor
@@ -36,7 +36,9 @@ namespace RPS_Modbus
                 PortName = config.PortName,
                 BaudRate = config.BaudRate,
                 Parity = Parity.None,
-                StopBits = StopBits.Two
+                StopBits = StopBits.Two,
+                WriteTimeout = 100,
+                ReadTimeout = 100
             };
             Port.DataReceived += Port_DataReceivedHandler;
         }
@@ -95,33 +97,6 @@ namespace RPS_Modbus
         }
 
         /// <summary>
-        /// Transmit single byte over serial port
-        /// </summary>
-        /// <param name="data">Byte to send</param>
-        /// <returns>true if success, false if error</returns>
-        public bool Transmit(byte data)
-        {
-            if (Connected)
-            {
-                try
-                {
-                    byte[] _data = { data };
-                    Port.Write(_data, 0, 1);
-                    Debug.WriteLine("PHY - TX_OK");
-                    return true;
-                }
-                catch
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        /// <summary>
         /// Transmit multiple bytes over serial port
         /// </summary>
         /// <param name="data">Data buffer to be transmitted</param>
@@ -133,7 +108,6 @@ namespace RPS_Modbus
                 try
                 {
                     Port.Write(data, 0, data.Length);
-                    Debug.WriteLine("PHY - TX_OK");
                     return true;
                 }
                 catch
@@ -168,7 +142,7 @@ namespace RPS_Modbus
             Buffer.Clear();
         }
 
-        private Stopwatch sw = new Stopwatch();
+        ////////// private Stopwatch sw = new Stopwatch();
 
         /// <summary>
         /// Handler for DataReceived event of serial port, stores received bytes to ring buffer
@@ -177,7 +151,7 @@ namespace RPS_Modbus
         /// <param name="e"></param>
         private void Port_DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
         {
-            sw.Start();
+            ////////// sw.Start();
             int n_bytes = Port.BytesToRead;
 #if true
             for (int i = 0; i < n_bytes; i++)
@@ -200,7 +174,7 @@ namespace RPS_Modbus
             Debug.WriteLine(n_bytes.ToString());
             Debug.WriteLine(ms);
 #endif
-            sw.Reset();
+            ////////// sw.Reset();
         }
     }
 }
