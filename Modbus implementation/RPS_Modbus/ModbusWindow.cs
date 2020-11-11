@@ -129,12 +129,11 @@ namespace RPS_Modbus
 
         private void trck_Holding_MouseUp(object sender, MouseEventArgs e)
         {
-            if (ProtocolHandler.IsServer)
-            {
-                return;
-            }
-            ProtocolHandler.HoldingRegisters.Write(0x0000, Convert.ToUInt16(trck_Holding.Value), false);
             lblHoldingVal.Text = trck_Holding.Value.ToString();
+            if (!ProtocolHandler.IsServer)
+            {
+                ProtocolHandler.HoldingRegisters.Write(0x0000, Convert.ToUInt16(trck_Holding.Value), false);
+            }
         }
 
         private void bttnCoil_Click(object sender, EventArgs e)
@@ -150,7 +149,7 @@ namespace RPS_Modbus
 
         private void ModbusWindow_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if(ProtocolHandler != null && ProtocolHandler.Connected)
+            if (ProtocolHandler != null && ProtocolHandler.Connected)
             {
                 ProtocolHandler.Disconnect();
             }
