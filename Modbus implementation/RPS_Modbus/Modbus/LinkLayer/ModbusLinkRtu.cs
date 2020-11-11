@@ -41,11 +41,6 @@ namespace RPS_Modbus
         private int ActualFrameIndex;
 
         /// <summary>
-        /// Id of actual message being processed - used for timeout handling
-        /// </summary>
-        private uint ActualMessageId = 0;
-
-        /// <summary>
         /// Link layer thread instance
         /// </summary>
         private readonly Thread LinkThread;
@@ -136,7 +131,7 @@ namespace RPS_Modbus
             Array.Copy(msg, 0, txData, 0, msg.Length);
             txData[txData.Length - 1] = Convert.ToByte((txCrc & 0xff00) >> 8);
             txData[txData.Length - 2] = Convert.ToByte(txCrc & 0x00ff);
-            Debug.WriteLine("LINK - TX_MSG: " + BitConverter.ToString(txData));
+            Debug.WriteLine("LINK - TX_MSG: " + BitConverter.ToString(msg));
             return PHY.Transmit(txData);
         }
 
@@ -187,6 +182,7 @@ namespace RPS_Modbus
                         if (value != -1)
                         {
                             byte ReceivedByte = Convert.ToByte(value);
+                            
                             ActualFrameIndex = 0;
                             ActualFrame[ActualFrameIndex++] = ReceivedByte;
                             ActualState = ModbusRtuLinkState.RECEIVING;
@@ -207,7 +203,6 @@ namespace RPS_Modbus
                     case ModbusRtuLinkState.PROCESSING:
                         // Process message
                         ProcessReceivedData();
-                        ActualMessageId++;
                         ActualState = ModbusRtuLinkState.IDLE;
                         break;
                 }

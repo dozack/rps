@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             this.grpConnection = new System.Windows.Forms.GroupBox();
-            this.chkMaster = new System.Windows.Forms.CheckBox();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.cmbPorts = new System.Windows.Forms.ComboBox();
@@ -38,9 +37,9 @@
             this.trck_Holding = new System.Windows.Forms.TrackBar();
             this.lblHolding = new System.Windows.Forms.Label();
             this.grpData = new System.Windows.Forms.GroupBox();
+            this.lblHoldingVal = new System.Windows.Forms.Label();
             this.bttnCoil = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
-            this.lblHoldingVal = new System.Windows.Forms.Label();
             this.grpConnection.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trck_Holding)).BeginInit();
             this.grpData.SuspendLayout();
@@ -48,7 +47,6 @@
             // 
             // grpConnection
             // 
-            this.grpConnection.Controls.Add(this.chkMaster);
             this.grpConnection.Controls.Add(this.label2);
             this.grpConnection.Controls.Add(this.label1);
             this.grpConnection.Controls.Add(this.cmbPorts);
@@ -60,16 +58,6 @@
             this.grpConnection.TabIndex = 6;
             this.grpConnection.TabStop = false;
             this.grpConnection.Text = "Serial Port Selection";
-            // 
-            // chkMaster
-            // 
-            this.chkMaster.AutoSize = true;
-            this.chkMaster.Location = new System.Drawing.Point(171, 63);
-            this.chkMaster.Name = "chkMaster";
-            this.chkMaster.Size = new System.Drawing.Size(57, 17);
-            this.chkMaster.TabIndex = 6;
-            this.chkMaster.Text = "Server";
-            this.chkMaster.UseVisualStyleBackColor = true;
             // 
             // label2
             // 
@@ -118,7 +106,7 @@
             // trck_Holding
             // 
             this.trck_Holding.Location = new System.Drawing.Point(115, 19);
-            this.trck_Holding.Maximum = 65535;
+            this.trck_Holding.Maximum = 1023;
             this.trck_Holding.Name = "trck_Holding";
             this.trck_Holding.Size = new System.Drawing.Size(218, 45);
             this.trck_Holding.TabIndex = 7;
@@ -148,6 +136,14 @@
             this.grpData.TabStop = false;
             this.grpData.Text = "Playground";
             // 
+            // lblHoldingVal
+            // 
+            this.lblHoldingVal.AutoSize = true;
+            this.lblHoldingVal.Location = new System.Drawing.Point(339, 32);
+            this.lblHoldingVal.Name = "lblHoldingVal";
+            this.lblHoldingVal.Size = new System.Drawing.Size(0, 13);
+            this.lblHoldingVal.TabIndex = 11;
+            // 
             // bttnCoil
             // 
             this.bttnCoil.BackColor = System.Drawing.Color.White;
@@ -167,14 +163,6 @@
             this.label3.TabIndex = 9;
             this.label3.Text = "Coil 0x0:";
             // 
-            // lblHoldingVal
-            // 
-            this.lblHoldingVal.AutoSize = true;
-            this.lblHoldingVal.Location = new System.Drawing.Point(339, 32);
-            this.lblHoldingVal.Name = "lblHoldingVal";
-            this.lblHoldingVal.Size = new System.Drawing.Size(0, 13);
-            this.lblHoldingVal.TabIndex = 11;
-            // 
             // ModbusWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -183,7 +171,8 @@
             this.Controls.Add(this.grpData);
             this.Controls.Add(this.grpConnection);
             this.Name = "ModbusWindow";
-            this.Text = "Modbus Master ";
+            this.Text = "Modbus ASCII Master 1";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ModbusWindow_FormClosing);
             this.Load += new System.EventHandler(this.ModbusWindow_Load);
             this.grpConnection.ResumeLayout(false);
             this.grpConnection.PerformLayout();
@@ -197,7 +186,6 @@
         #endregion
 
         private System.Windows.Forms.GroupBox grpConnection;
-        private System.Windows.Forms.CheckBox chkMaster;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ComboBox cmbPorts;

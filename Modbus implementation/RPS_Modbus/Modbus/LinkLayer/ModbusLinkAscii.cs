@@ -73,7 +73,11 @@ namespace RPS_Modbus
             // Init serial port driver
             PHY = new ModbusSerialPort(config);
             // Init link layer thread
-            LinkThread = new Thread(ModbusAsciiLinkTask);
+            LinkThread = new Thread(ModbusAsciiLinkTask)
+            {
+                Name = "Modbus Link Layer Thread",
+                Priority = ThreadPriority.Normal
+            };
             // Configure timeout timer
             TimeoutCounter.Interval = 1000;
             TimeoutCounter.AutoReset = false;
@@ -201,10 +205,11 @@ namespace RPS_Modbus
         /// </summary>
         private void ModbusAsciiLinkTask()
         {
+            int threadDelay = 10;
             while (true)
             {
+                Thread.Sleep(threadDelay);
                 // Pop byte from receive ring buffer
-                Thread.Sleep(0);
                 int value = PHY.Receive();
                 if (value != -1)
                 {
@@ -220,6 +225,7 @@ namespace RPS_Modbus
                                 TimeoutCounter.Start();
                                 // Reset reception buffer index
                                 ActualFrameIndex = 0;
+                                threadDelay = 0;
                                 ActualState = ModbusAsciiLinkState.RECEIVING;
                             }
                             break;
@@ -233,6 +239,7 @@ namespace RPS_Modbus
                                 ProcessReceivedData();
                                 // Set state to idle
                                 ActualState = ModbusAsciiLinkState.IDLE;
+                                threadDelay = 10;
                                 // Increment message id
                                 ActualMessageId++;
                                 break;

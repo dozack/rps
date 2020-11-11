@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 
 namespace RPS_Modbus
 {
@@ -8,15 +7,19 @@ namespace RPS_Modbus
     {
         private readonly Dictionary<ushort, bool> Storage = new Dictionary<ushort, bool>();
 
-        public void Write(ushort address, bool value)
+        public void Write(ushort address, bool value, bool notify)
         {
             try
             {
                 Storage[address] = value;
+                if (notify)
+                {
+                    TriggerValueUpdated(address, value);
+                }
             }
             catch
             {
-                throw new InvalidDataException("ILLEGAL_DATA_VALUE");
+                throw new ArgumentException("ILLEGAL_DATA_ADDRESS || ILLEGAL_DATA_VALUE");
             }
         }
 
@@ -28,8 +31,14 @@ namespace RPS_Modbus
             }
             catch
             {
-                throw new InvalidDataException("ILLEGAL_DATA_ADDRESS");
+                throw new ArgumentException("ILLEGAL_DATA_ADDRESS");
             }
         }
+
+        public delegate void ValueUpdated(ModbusCoils sender, ushort address, bool value);
+
+        public event ValueUpdated OnValueUpdated;
+
+        protected virtual void TriggerValueUpdated(ushort address, bool value) { OnValueUpdated?.Invoke(this, address, value); }
     }
 }

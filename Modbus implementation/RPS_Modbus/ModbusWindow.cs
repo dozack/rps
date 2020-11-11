@@ -52,14 +52,17 @@ namespace RPS_Modbus
                     PortName = cmbPorts.SelectedItem.ToString(),
                     BaudRate = baudrates[cmbBaud.SelectedItem.ToString()],
                     ClientAddress = 0x1,
-                    IsServer = chkMaster.Checked,
+                    IsServer = true,
                     ProtocolType = ModbusProtocolType.ASCII,
                 };
                 // Init new instance of application layer
                 ProtocolHandler = new Modbus(config);
 
-                ProtocolHandler.Coils.Write(0x0000, false);
-                ProtocolHandler.HoldingRegisters.Write(0x0000, 0x0000);
+                ProtocolHandler.Coils.OnValueUpdated += Coils_OnValueUpdated;
+                ProtocolHandler.HoldingRegisters.OnValueUpdated += HoldingRegisters_OnValueUpdated;
+
+                ProtocolHandler.Coils.Write(0x0000, false, true);
+                ProtocolHandler.HoldingRegisters.Write(0x0000, 0x0000, true);
 
                 // Try to connect to bus
                 if (!ProtocolHandler.Connect())
@@ -72,42 +75,56 @@ namespace RPS_Modbus
                 {
                     UpdateTimer.Interval = 200;
                     UpdateTimer.Tick += UpdateTimer_Tick;
-                    UpdateTimer.Enabled = true;
+                    UpdateTimer.Start();
                 }
 
                 // Update controls
                 bttnConnection.Text = "Disconnect";
                 cmbPorts.Enabled = false;
                 cmbBaud.Enabled = false;
-                chkMaster.Enabled = false;
                 grpData.Enabled = true;
             }
             else
             {
+                UpdateTimer.Stop();
                 // Disconnect from bus
                 ProtocolHandler.Disconnect();
-
-                if (ProtocolHandler.IsServer)
-                {
-                    UpdateTimer.Enabled = false;
-                }
 
                 // Update controls
                 bttnConnection.Text = "Connect";
                 cmbPorts.Enabled = true;
                 cmbBaud.Enabled = true;
-                chkMaster.Enabled = true;
                 grpData.Enabled = false;
+            }
+        }
+
+        private void HoldingRegisters_OnValueUpdated(ModbusHoldingRegisters sender, ushort address, ushort value)
+        {
+            if (address == 0x0000)
+            {
+                Invoke(new Action(() =>
+                {
+                    trck_Holding.Value = value;
+                    lblHoldingVal.Text = value.ToString();
+                }));
+            }
+        }
+
+        private void Coils_OnValueUpdated(ModbusCoils sender, ushort address, bool value)
+        {
+            if (address == 0x0000)
+            {
+                Invoke(new Action(() =>
+                {
+                    bttnCoil.BackColor = value == true ? Color.Green : Color.White;
+                }));
             }
         }
 
         private void UpdateTimer_Tick(object sender, EventArgs e)
         {
-            ProtocolHandler.ReadCoil(0x0000);
-            ProtocolHandler.ReadHoldingRegister(0x0000);
-            trck_Holding.Value = ProtocolHandler.HoldingRegisters.Read(0x0000);
-            bool coilStatus = Convert.ToBoolean(ProtocolHandler.Coils.Read(0x0000));
-            bttnCoil.BackColor = coilStatus == true ? Color.Green : Color.White;
+            ProtocolHandler.ReadCoils(0x0000);
+            ProtocolHandler.WriteHoldingRegister(0x0000, Convert.ToUInt16(trck_Holding.Value));
         }
 
         private void trck_Holding_MouseUp(object sender, MouseEventArgs e)
@@ -116,7 +133,7 @@ namespace RPS_Modbus
             {
                 return;
             }
-            ProtocolHandler.HoldingRegisters.Write(0x0000, Convert.ToUInt16(trck_Holding.Value));
+            ProtocolHandler.HoldingRegisters.Write(0x0000, Convert.ToUInt16(trck_Holding.Value), false);
             lblHoldingVal.Text = trck_Holding.Value.ToString();
         }
 
@@ -127,8 +144,16 @@ namespace RPS_Modbus
                 return;
             }
             bool coilStatus = !Convert.ToBoolean(ProtocolHandler.Coils.Read(0x0000));
-            ProtocolHandler.Coils.Write(0x0000, coilStatus);
+            ProtocolHandler.Coils.Write(0x0000, coilStatus, false);
             bttnCoil.BackColor = coilStatus == true ? Color.Green : Color.White;
+        }
+
+        private void ModbusWindow_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if(ProtocolHandler != null && ProtocolHandler.Connected)
+            {
+                ProtocolHandler.Disconnect();
+            }
         }
     }
 }

@@ -10,7 +10,7 @@ namespace RPS_Modbus
         /// <summary>
         /// Connection status flag
         /// </summary>
-        bool Connected { get; set; }
+        bool Connected { get; }
 
         /// <summary>
         /// Connect to physical layer medium
