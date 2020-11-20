@@ -15,7 +15,7 @@ namespace RPS_Modbus
         private Dictionary<string, int> baudrates = new Dictionary<string, int>()
         {
             {"9600", 9600 },
-            {"19200", 57600},
+            {"19200", 19200},
             {"115200", 115200},
         };
 
